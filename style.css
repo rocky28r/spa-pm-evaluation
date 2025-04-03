@@ -1,0 +1,121 @@
+body {
+    font-family: sans-serif;
+    line-height: 1.6;
+    padding: 20px;
+    background-color: #f4f7f6;
+    color: #333;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 20px; /* Adjusted margin */
+}
+
+.role-selector {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.role-selector label {
+    margin-right: 10px;
+    font-weight: bold;
+    color: #34495e;
+}
+
+#roleSelect {
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    font-size: 1em;
+}
+
+
+.assessment-inputs {
+    margin-bottom: 30px;
+}
+
+.input-header,
+.input-row {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr; /* Category | Own | Role */
+    gap: 15px;
+    margin-bottom: 10px;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.input-header {
+    font-weight: bold;
+    color: #34495e;
+    border-bottom: 2px solid #ccc;
+    padding-bottom: 10px;
+}
+.input-header div:not(:first-child), /* Center Own & Role headers */
+.input-row input,                  /* Center Own input */
+.input-row .role-value {            /* Center Role value */
+    text-align: center;
+}
+
+
+.category-title {
+    font-weight: 500;
+}
+
+.input-row label {
+    grid-column: 1 / 2;
+    padding-right: 10px;
+}
+
+.input-row input[type="number"] {
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 80%; /* Adjust width */
+    box-sizing: border-box; /* Include padding in width */
+    justify-self: center; /* Center input box in grid cell */
+    grid-column: 2 / 3; /* Place in second column */
+}
+
+.input-row .role-value {
+    grid-column: 3 / 4; /* Place in third column */
+    font-weight: 500;
+    color: #555;
+    justify-self: center; /* Center text in grid cell */
+}
+
+/* Hide spinner arrows on number inputs (optional) */
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type=number] {
+  -moz-appearance: textfield; /* Firefox */
+}
+
+/* Remove button styling if button is removed */
+/*
+button { ... }
+button:hover { ... }
+*/
+
+.chart-container {
+    width: 100%;
+    max-width: 880px; /* Adjust max chart width */
+    margin: 20px auto 0 auto; /* Added top margin */
+    padding: 15px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    background-color: #fff;
+}
