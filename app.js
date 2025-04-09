@@ -1,3 +1,6 @@
+// ADD CHART.JS PLUGIN REGISTRATION HERE IF YOU IMPLEMENT THE BACKGROUND PLUGIN
+// e.g., Chart.register(radarBackgroundPlugin);
+
 document.addEventListener('DOMContentLoaded', () => {
     // Define skill categories INCLUDING SPACERS ("") where gaps are needed
     const skillCategories = [
@@ -11,30 +14,44 @@ document.addEventListener('DOMContentLoaded', () => {
         "Feature Specification", "Product Delivery", "Quality Assurance" // 13, 14, 15
     ];
 
-    // --- Define Core Role Expectations (12 scores per role) ---
-    const coreRoleExpectations = {
-      "Jr Product Manager":     [3, 3, 3, 2, 2, 1, 3, 1, 2, 5, 5, 3],
-      "Product Manager":        [4, 4, 4, 4, 4, 3, 4, 2, 4, 5, 5, 2],
-      "Senior Product Manager": [5, 5, 5, 5, 5, 5, 5, 4, 5, 4, 4, 1],
-      "Principal Product Manager": [6, 5, 5, 6, 6, 6, 6, 5, 6, 3, 3, 1],
-      "Senior Principal Product Manager": [6, 5, 4, 6, 6, 6, 6, 6, 6, 2, 2, 0],
-      "Associate Group Product Manager": [5, 4, 4, 5, 5, 5, 5, 5, 5, 3, 3, 1],
-      "Group Product Manager":  [5, 4, 4, 6, 6, 6, 6, 6, 6, 2, 2, 0],
-      "Product Director":       [5, 4, 3, 6, 6, 6, 6, 6, 6, 1, 1, 0],
-      "VP Product":             [5, 5, 3, 6, 6, 6, 6, 6, 6, 0, 0, 0],
-      "SVP Product":            [4, 5, 2, 6, 6, 6, 6, 6, 6, 0, 0, 0]
+     // --- Define colors for Point Labels ---
+    const colorOrange = '#F5821F';
+    const colorYellow = '#EAAA00';
+    const colorCyan = '#20BDBE';
+    const colorBlue = '#0077C8';
+    // const defaultColor = '#666'; // Use if needed
+
+    const pointLabelColors = [
+        null, colorYellow, colorYellow, colorYellow, null, colorCyan, colorCyan, colorCyan,
+        null, colorBlue, colorBlue, colorBlue, null, colorOrange, colorOrange, colorOrange
+    ];
+    // --- End of color definitions ---
+
+
+    // --- UPDATED: Define Core Role Expectations based on the screenshot (0-3 scale) ---
+    // Order: [Fluency, VoC, UX, Business, Vision, Strategic, Stakeholder, Leadership, ManagingUp, FeatureSpec, Delivery, QA]
+    const coreRoleExpectations = { /* ... Role data unchanged ... */
+      "Jr Product Manager":     [1.5, 2.0, 1.5, 3.0, 0.5, 0.5, 1.0, 0.0, 0.5, 3.0, 1.0, 3.0],
+      "Product Manager":        [2.5, 3.0, 2.0, 3.0, 1.0, 1.0, 1.5, 0.0, 1.0, 3.0, 3.0, 3.0],
+      "Senior Product Manager": [3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 3.0, 0.5, 1.5, 3.0, 3.0, 3.0],
+      "Principal Product Manager": [3.0, 3.0, 3.0, 3.0, 2.5, 1.5, 2.0, 0.5, 1.0, 2.5, 2.5, 2.0],
+      "Senior Principal Product Manager": [3.0, 3.0, 3.0, 3.0, 2.5, 2.5, 2.0, 0.5, 1.0, 1.5, 2.0, 0.5],
+      "Associate Group Product Manager": [3.0, 3.0, 3.0, 3.0, 2.0, 1.0, 3.0, 1.0, 1.5, 3.0, 3.0, 3.0],
+      "Group Product Manager":  [3.0, 3.0, 3.0, 3.0, 2.0, 1.5, 3.0, 2.0, 2.0, 2.5, 2.5, 2.0],
+      "Product Director":       [3.0, 2.5, 2.0, 3.0, 2.5, 2.5, 3.0, 2.5, 2.5, 1.5, 2.0, 0.5],
+      "VP Product":             [3.0, 2.0, 1.0, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 0.5, 1.0, 0.5],
+      "SVP Product":            [3.0, 2.0, 0.5, 3.0, 3.0, 3.0, 3.0, 3.0, 3.0, 0.5, 0.5, 0.5]
     };
+    // --- End of updated role expectations ---
+
+    // --- LocalStorage Key ---
+    const LOCAL_STORAGE_KEY = 'pmSkillsAssessmentScores';
 
     // --- Helper function to transform 12 scores to 16 with null spacers ---
-    function transformScores(scores12) {
-        if (!scores12 || scores12.length !== 12) {
-            console.error("Invalid scores array provided for transformation:", scores12);
-            return Array(16).fill(null);
-        }
-        return [
-            null, scores12[0], scores12[1], scores12[2], null, scores12[3], scores12[4], scores12[5],
-            null, scores12[6], scores12[7], scores12[8], null, scores12[9], scores12[10], scores12[11]
-        ];
+    function transformScores(scores12) { /* ... Function unchanged ... */
+        if (!scores12 || scores12.length !== 12) { console.error("Invalid scores array provided for transformation:", scores12); return Array(16).fill(null); }
+        scores12.forEach((s, i) => { if (typeof s !== 'number' || s < 0 || s > 3) { console.warn(`Score at index ${i} (${s}) is out of the expected 0-3 range or not a number.`); } });
+        return [ null, scores12[0], scores12[1], scores12[2], null, scores12[3], scores12[4], scores12[5], null, scores12[6], scores12[7], scores12[8], null, scores12[9], scores12[10], scores12[11] ];
     }
 
     // --- Transform the core expectations to include nulls for spacers ---
@@ -46,184 +63,118 @@ document.addEventListener('DOMContentLoaded', () => {
     const inputsContainer = document.querySelector('.assessment-inputs');
     const roleSelect = document.getElementById('roleSelect');
     const canvas = document.getElementById('skillsChart');
-    let skillsChart = null; // Keep track of the chart instance
+    let skillsChart = null;
 
-    // --- NEW: Debounce utility function ---
-    function debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-            const later = () => {
-                clearTimeout(timeout);
-                func(...args);
-            };
-            clearTimeout(timeout);
-            timeout = setTimeout(later, wait);
-        };
+    // --- Debounce utility function ---
+    function debounce(func, wait) { /* ... Function unchanged ... */
+        let timeout; return function executedFunction(...args) { const later = () => { clearTimeout(timeout); func(...args); }; clearTimeout(timeout); timeout = setTimeout(later, wait); };
     }
 
     // --- Dynamically Populate Role Selector Dropdown ---
-    function populateRoleDropdown() {
-        const roleNames = Object.keys(roleExpectations);
-        roleSelect.innerHTML = '';
-        roleNames.forEach(roleName => {
-            const option = document.createElement('option');
-            option.value = roleName;
-            option.textContent = roleName;
-            roleSelect.appendChild(option);
-        });
-        if (roleNames.includes("Product Manager")) {
-            roleSelect.value = "Product Manager";
-        } else if (roleNames.length > 0) {
-            roleSelect.value = roleNames[0];
-        }
+    function populateRoleDropdown() { /* ... Function unchanged ... */
+        const roleNames = Object.keys(roleExpectations); roleSelect.innerHTML = ''; roleNames.forEach(roleName => { const option = document.createElement('option'); option.value = roleName; option.textContent = roleName; roleSelect.appendChild(option); }); if (roleNames.includes("Product Manager")) { roleSelect.value = "Product Manager"; } else if (roleNames.length > 0) { roleSelect.value = roleNames[0]; }
     }
 
     // --- Create Input Fields and Role Value Placeholders ---
-    function createInputFields() {
-        inputsContainer.innerHTML = '';
-         const header = document.createElement('div');
-         header.classList.add('input-header');
-         header.innerHTML = `
-             <div class="category-title">Category</div>
-             <div>Own Assessment</div>
-             <div>Role Expectation</div>`;
-         inputsContainer.appendChild(header);
-
-        skillCategories.forEach((skillName, index) => {
-            if (skillName !== "") {
-                const row = document.createElement('div');
-                row.classList.add('input-row');
-                const label = document.createElement('label');
-                const skillNumber = skillCategories.slice(0, index + 1).filter(s => s !== "").length;
-                label.textContent = `${skillNumber}. ${skillName}`;
-                label.setAttribute('for', `own-score-${index}`);
-                const ownInput = document.createElement('input');
-                ownInput.type = 'number';
-                ownInput.id = `own-score-${index}`;
-                ownInput.min = 0;
-                ownInput.max = 6;
-                ownInput.value = '';
-                ownInput.addEventListener('change', generateChart); // Update on change
-                const roleValueSpan = document.createElement('span');
-                roleValueSpan.classList.add('role-value');
-                roleValueSpan.id = `role-value-${index}`;
-                roleValueSpan.textContent = '-';
-                row.appendChild(label);
-                row.appendChild(ownInput);
-                row.appendChild(roleValueSpan);
-                inputsContainer.appendChild(row);
-            }
-        });
+    function createInputFields() { /* ... Function unchanged ... */
+         inputsContainer.innerHTML = ''; const header = document.createElement('div'); header.classList.add('input-header'); header.innerHTML = `<div class="category-title">Category</div><div>Own Assessment</div><div>Role Expectation</div>`; inputsContainer.appendChild(header); skillCategories.forEach((skillName, index) => { if (skillName !== "") { const row = document.createElement('div'); row.classList.add('input-row'); const label = document.createElement('label'); const skillNumber = skillCategories.slice(0, index + 1).filter(s => s !== "").length; label.textContent = `${skillNumber}. ${skillName}`; label.setAttribute('for', `own-score-${index}`); const ownInput = document.createElement('input'); ownInput.type = 'number'; ownInput.id = `own-score-${index}`; ownInput.min = 0; ownInput.max = 3; ownInput.step = "0.5"; ownInput.value = ''; ownInput.addEventListener('change', generateChart); const roleValueSpan = document.createElement('span'); roleValueSpan.classList.add('role-value'); roleValueSpan.id = `role-value-${index}`; roleValueSpan.textContent = '-'; row.appendChild(label); row.appendChild(ownInput); row.appendChild(roleValueSpan); inputsContainer.appendChild(row); } });
     }
 
     // --- Function to Update Role Expectation Display ---
-    function updateRoleExpectationsDisplay(selectedRole) {
-        const expectations = roleExpectations[selectedRole];
-        if (!expectations) return;
-        skillCategories.forEach((skillName, index) => {
-            if (skillName !== "") {
-                const span = document.getElementById(`role-value-${index}`);
-                if (span) {
-                    span.textContent = (expectations[index] !== null && expectations[index] !== undefined) ? expectations[index] : '-';
-                }
-            }
-        });
+    function updateRoleExpectationsDisplay(selectedRole) { /* ... Function unchanged ... */
+        const expectations = roleExpectations[selectedRole]; if (!expectations) return; skillCategories.forEach((skillName, index) => { if (skillName !== "") { const span = document.getElementById(`role-value-${index}`); if (span) { span.textContent = (expectations[index] !== null && expectations[index] !== undefined) ? expectations[index] : '-'; } } });
     }
 
-    // --- Chart Generation Function ---
+    // --- NEW: Function to Save Scores to localStorage ---
+    function saveScores(scoresToSave) { /* ... Function unchanged ... */
+        try { localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(scoresToSave)); /* console.log("Scores saved."); */ } catch (e) { console.error("Error saving scores:", e); }
+    }
+
+    // --- NEW: Function to Load Scores from localStorage ---
+    function loadScores() { /* ... Function unchanged ... */
+        try { const savedData = localStorage.getItem(LOCAL_STORAGE_KEY); if (savedData) { const loadedScores = JSON.parse(savedData); /* console.log("Scores loaded:", loadedScores); */ for (const index in loadedScores) { const inputElement = document.getElementById(`own-score-${index}`); if (inputElement) { inputElement.value = loadedScores[index] || ''; } } return true; } } catch (e) { console.error("Error loading scores:", e); } return false;
+    }
+
+
+    // --- Chart Generation Function (MODIFIED for point label colors) ---
     function generateChart() {
-        const ownScores = [];
-        const labels = skillCategories;
+        const isSmallScreen = window.innerWidth < 480;
+        const isMediumScreen = window.innerWidth < 768;
+        const pointLabelFontSize = isSmallScreen ? 8 : (isMediumScreen ? 10 : 11);
+        const displayLegend = !isSmallScreen;
+
+        const ownScoresForChart = [];
+        const scoresToSave = {};
+        const labels = skillCategories; // Use the global one
         const selectedRole = roleSelect.value;
         const roleScores = roleExpectations[selectedRole] || Array(skillCategories.length).fill(null);
 
-        skillCategories.forEach((skillName, index) => {
-            if (skillName === "") {
-                ownScores.push(null);
-            } else {
-                const inputElement = document.getElementById(`own-score-${index}`);
-                if (inputElement) {
-                    const ownValue = parseFloat(inputElement.value);
-                    ownScores.push(isNaN(ownValue) ? null : Math.max(0, Math.min(6, ownValue)));
-                } else {
-                    ownScores.push(null);
-                }
-            }
+        // --- Iterate and Collect/Process Scores ---
+        skillCategories.forEach((skillName, index) => { /* ... Logic unchanged ... */
+            if (skillName === "") { ownScoresForChart.push(null); } else { const inputElement = document.getElementById(`own-score-${index}`); if (inputElement) { const rawValue = inputElement.value; const ownValueFloat = parseFloat(rawValue); const clampedValue = isNaN(ownValueFloat) ? null : Math.max(0, Math.min(3, ownValueFloat)); ownScoresForChart.push(clampedValue); scoresToSave[index] = rawValue; } else { ownScoresForChart.push(null); } }
         });
 
-        const data = { labels: labels, datasets: [ /* Datasets definition unchanged */
-                {
-                    label: 'Own assessment', data: ownScores, fill: true,
-                    backgroundColor: 'rgba(54, 162, 235, 0.2)', borderColor: 'rgb(54, 162, 235)',
-                    pointBackgroundColor: 'rgb(54, 162, 235)', pointBorderColor: '#fff',
-                    pointHoverBackgroundColor: '#fff', pointHoverBorderColor: 'rgb(54, 162, 235)',
-                    spanGaps: true
-                },
-                {
-                    label: `${selectedRole} Expectation`, data: roleScores, fill: true,
-                    backgroundColor: 'rgba(255, 99, 132, 0.2)', borderColor: 'rgb(255, 99, 132)',
-                    borderDash: [5, 5], pointBackgroundColor: 'rgb(255, 99, 132)',
-                    pointBorderColor: '#fff', pointHoverBackgroundColor: '#fff',
-                    pointHoverBorderColor: 'rgb(255, 99, 132)', spanGaps: true
-                }
-        ]};
+        // --- Save the collected raw scores ---
+        saveScores(scoresToSave);
+
+        // --- Chart.js Data and Config ---
+        const data = { labels: labels, datasets: [ /* Datasets unchanged */
+             { label: 'Own assessment', data: ownScoresForChart, fill: true, backgroundColor: 'rgba(54, 162, 235, 0.2)', borderColor: 'rgb(54, 162, 235)', pointBackgroundColor: 'rgb(54, 162, 235)', pointBorderColor: '#fff', pointHoverBackgroundColor: '#fff', pointHoverBorderColor: 'rgb(54, 162, 235)', spanGaps: true },
+             { label: `${selectedRole} Expectation`, data: roleScores, fill: true, backgroundColor: 'rgba(255, 99, 132, 0.2)', borderColor: 'rgb(255, 99, 132)', borderDash: [5, 5], pointBackgroundColor: 'rgb(255, 99, 132)', pointBorderColor: '#fff', pointHoverBackgroundColor: '#fff', pointHoverBorderColor: 'rgb(255, 99, 132)', spanGaps: true }
+         ]};
 
         const config = {
             type: 'radar',
             data: data,
             options: {
-                animation: false, // Animation disabled
-                elements: { line: { borderWidth: 3 } },
-                scales: { /* Scales definition unchanged */
-                    r: {
-                        angleLines: { display: true }, suggestedMin: 0, suggestedMax: 6,
-                        ticks: { stepSize: 1 },
+                animation: false,
+                elements: { line: { borderWidth: 2 } },
+                scales: {
+                    r: { // The radial axis (values)
+                        angleLines: { display: true },
+                        suggestedMin: 0,
+                        suggestedMax: 3, // Max scale value is 3
+                        ticks: {
+                            stepSize: 0.5 // Ticks at 0, 0.5, 1, 1.5, 2, 2.5, 3
+                        },
                         pointLabels: {
-                            callback: function(label, index) { return labels[index] !== "" ? label : null; },
-                            font: { size: 11 }
+                            callback: function(label, index) {
+                                return labels[index] !== "" ? label : null; // Use global labels
+                            },
+                            font: { size: pointLabelFontSize },
+                            // *** USE THE DEFINED COLOR ARRAY ***
+                            color: pointLabelColors
                         }
                     }
                 },
-                plugins: { /* Plugins definition unchanged */
+                plugins: {
                     tooltip: { filter: function(tooltipItem) { return tooltipItem.raw !== null; } },
-                    legend: { position: 'top' }
+                    legend: { position: 'top', display: displayLegend }
                 },
-                maintainAspectRatio: true, // Keep aspect ratio
-                responsive: true // Still useful for initial sizing
+                maintainAspectRatio: true,
+                responsive: true
             }
         };
 
+        // --- Destroy old chart and create new one ---
         if (skillsChart) { skillsChart.destroy(); }
-        skillsChart = new Chart(canvas, config); // Assign instance to skillsChart variable
+        skillsChart = new Chart(canvas, config);
     }
 
     // --- Event Listener for Role Selection Change ---
-    roleSelect.addEventListener('change', () => {
-        const selectedRole = roleSelect.value;
-        if (roleExpectations[selectedRole]) {
-             updateRoleExpectationsDisplay(selectedRole);
-             generateChart();
-        } else {
-             console.error("Selected role not found in expectations:", selectedRole);
-        }
+    roleSelect.addEventListener('change', () => { /* ... Listener unchanged ... */
+         const selectedRole = roleSelect.value; if (roleExpectations[selectedRole]) { updateRoleExpectationsDisplay(selectedRole); generateChart(); } else { console.error("Selected role not found:", selectedRole); }
     });
 
-    // --- NEW: Debounced Resize Handler ---
-    const handleResize = debounce(() => {
-        if (skillsChart) {
-            // Explicitly tell the chart instance to resize
-            // This ensures it redraws correctly even if responsive: true fails
-            skillsChart.resize();
-        }
-    }, 150); // Wait 150ms after the last resize event before triggering
-
-    // Attach the resize listener to the window
+    // --- Debounced Resize Handler ---
+    const handleResize = debounce(() => { generateChart(); }, 250);
     window.addEventListener('resize', handleResize);
-
 
     // --- Initial Setup on Page Load ---
     populateRoleDropdown();
     createInputFields();
+    const scoresWereLoaded = loadScores();
+    /* console.log("Scores loaded:", scoresWereLoaded); */
     const initialRole = roleSelect.value;
     if (roleExpectations[initialRole]) {
         updateRoleExpectationsDisplay(initialRole);
