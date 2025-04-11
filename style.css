@@ -1,9 +1,12 @@
+/* === Existing styles ... (body, container, h1, role-selector, assessment-inputs, input-header, input-row, category-title, label, input[type="number"], role-value, number input spinner hiding, chart-container) === */
 body {
     font-family: sans-serif;
     line-height: 1.6;
     padding: 20px;
     background-color: #f4f7f6;
     color: #333;
+    /* Add padding to bottom to prevent content from being hidden by the fixed button */
+    padding-bottom: 80px; /* Adjust as needed */
 }
 
 .container {
@@ -39,7 +42,6 @@ h1 {
     font-size: 1em;
 }
 
-
 .assessment-inputs {
     margin-bottom: 30px;
 }
@@ -47,12 +49,15 @@ h1 {
 .input-header,
 .input-row {
     display: grid;
-    grid-template-columns: 3fr 1fr 1fr; /* Category | Own | Role */
+    grid-template-columns: minmax(250px, 3fr) 1fr 1fr; /* Category | Own | Role */
     gap: 15px;
     margin-bottom: 10px;
-    align-items: center;
+    align-items: center; /* Vertically align items in the row */
     padding: 8px 0;
     border-bottom: 1px solid #eee;
+}
+.input-row:last-child {
+    border-bottom: none;
 }
 
 .input-header {
@@ -61,12 +66,11 @@ h1 {
     border-bottom: 2px solid #ccc;
     padding-bottom: 10px;
 }
-.input-header div:not(:first-child), /* Center Own & Role headers */
-.input-row input,                  /* Center Own input */
-.input-row .role-value {            /* Center Role value */
+.input-header div:not(:first-child),
+.input-row input,
+.input-row .role-value {
     text-align: center;
 }
-
 
 .category-title {
     font-weight: 500;
@@ -75,26 +79,28 @@ h1 {
 .input-row label {
     grid-column: 1 / 2;
     padding-right: 10px;
+    display: flex;
+    align-items: center;
 }
 
 .input-row input[type="number"] {
     padding: 8px;
     border: 1px solid #ccc;
     border-radius: 4px;
-    width: 80%; /* Adjust width */
-    box-sizing: border-box; /* Include padding in width */
-    justify-self: center; /* Center input box in grid cell */
-    grid-column: 2 / 3; /* Place in second column */
+    width: 80%;
+    max-width: 70px;
+    box-sizing: border-box;
+    justify-self: center;
+    grid-column: 2 / 3;
 }
 
 .input-row .role-value {
-    grid-column: 3 / 4; /* Place in third column */
+    grid-column: 3 / 4;
     font-weight: 500;
     color: #555;
-    justify-self: center; /* Center text in grid cell */
+    justify-self: center;
 }
 
-/* Hide spinner arrows on number inputs (optional) */
 input[type=number]::-webkit-inner-spin-button,
 input[type=number]::-webkit-outer-spin-button {
   -webkit-appearance: none;
@@ -104,19 +110,111 @@ input[type=number] {
   -moz-appearance: textfield; /* Firefox */
 }
 
-/* Remove button styling if button is removed */
-/*
-button { ... }
-button:hover { ... }
-*/
-
 .chart-container {
     width: 100%;
     max-width: 880px; /* Adjust max chart width */
-    margin: 20px auto 0 auto; /* Added top margin */
+    margin: 40px auto 0 auto; /* Increased top margin */
     padding: 15px;
     border: 1px solid #ddd;
     border-radius: 5px;
     background-color: #fff;
 }
 
+/* --- Tooltip Styles --- */
+.tooltip-icon {
+    display: inline-block; margin-left: 6px; font-size: 0.8em; font-weight: bold;
+    color: #0077C8; cursor: help; position: relative; border: 1px solid #0077C8;
+    border-radius: 50%; width: 1.4em; height: 1.4em; line-height: 1.4em;
+    text-align: center; background-color: #e7f3fd;
+    /* Ensure the parent doesn't clip */
+    overflow: visible;
+}
+.tooltip-icon::after {
+    content: attr(data-tooltip); position: absolute; display: none; bottom: 120%;
+    left: 50%; transform: translateX(-50%); background-color: rgba(51, 51, 51, 0.95);
+    color: #fff; padding: 10px 15px; border-radius: 5px; font-size: 0.9em;
+    font-weight: normal; line-height: 1.4; white-space: pre-wrap; width: 280px;
+    max-width: 90vw; z-index: 100; text-align: left; box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+    pointer-events: none;
+    /* --- FIXES FOR TEXT CUTOFF --- */
+    height: auto;         /* Explicitly allow height to adjust */
+    overflow: visible;    /* Ensure content isn't clipped */
+    overflow-wrap: break-word; /* Help break long words if needed */
+    /* --- END FIXES --- */
+}
+.tooltip-icon:hover::after { display: block; }
+/* --- End Tooltip Styles --- */
+
+
+/* --- Fixed Copy Share Link Button Styles --- */
+#copyFixedLinkBtn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 1000; /* Ensure it's above other content */
+    padding: 10px 18px;
+    font-size: 0.95em;
+    font-weight: 500;
+    cursor: pointer;
+    background-color: #007bff; /* Blue */
+    color: white;
+    border: none;
+    border-radius: 5px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.2s ease, transform 0.1s ease, box-shadow 0.2s ease;
+}
+
+#copyFixedLinkBtn:hover {
+    background-color: #0056b3; /* Darker blue */
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+#copyFixedLinkBtn:active {
+    transform: scale(0.97); /* Slight shrink effect */
+    background-color: #004a9a; /* Even darker blue */
+}
+
+#copyFixedLinkBtn:disabled {
+    background-color: #cccccc; /* Grey out when disabled (e.g., during copy feedback) */
+    cursor: default;
+    opacity: 0.7;
+}
+/* --- End Fixed Button Styles --- */
+
+/* --- Media Queries --- */
+@media (max-width: 768px) {
+    body { padding-bottom: 70px; } /* Adjust padding for smaller screens */
+    .container { padding: 20px; }
+    .input-header, .input-row { grid-template-columns: minmax(180px, 2.5fr) 1fr 1fr; gap: 10px; }
+    .input-row label { font-size: 0.9em; }
+    .input-row input[type="number"] { width: 90%; }
+    h1 { font-size: 1.8em; }
+    .tooltip-icon::after { width: 220px; font-size: 0.85em; }
+
+    /* Adjust fixed button size/position slightly if needed */
+    #copyFixedLinkBtn {
+        padding: 9px 15px;
+        font-size: 0.9em;
+        bottom: 15px;
+        right: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    body { padding-bottom: 65px; } /* Adjust padding for smaller screens */
+    .input-header, .input-row { grid-template-columns: minmax(120px, 1fr) auto auto; gap: 5px; font-size: 0.9em; }
+    .input-row label { font-size: 0.85em; padding-right: 5px; }
+    .tooltip-icon { margin-left: 4px; font-size: 0.75em; width: 1.3em; height: 1.3em; line-height: 1.3em; }
+    .input-row input[type="number"] { padding: 6px; }
+    .role-selector label { display: block; margin-bottom: 5px; }
+    #roleSelect { width: 100%; }
+    .tooltip-icon::after { bottom: 130%; width: 90vw; max-width: 200px; /* Adjust width for small screens */ }
+
+    /* Adjust fixed button size/position slightly if needed */
+    #copyFixedLinkBtn {
+        padding: 8px 12px;
+        font-size: 0.85em;
+        bottom: 10px;
+        right: 10px;
+    }
+}
